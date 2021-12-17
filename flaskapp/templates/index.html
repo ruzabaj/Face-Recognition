@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>taking picture form webcam</title>
+</head>
+<style>
+    #camera{
+        width: 640px;
+        height: 480px;
+        border: 1px solid black;
+        margin: 0 auto;
+
+
+    }
+    .wrapper {
+        text-align: center;
+        padding: 50px;
+    }
+
+    .button {
+
+        font-size: 25px;
+        
+    }
+
+    #results{
+
+        width: 640px;
+        height: 480px;
+        border: 1px solid black;
+        margin: 0 auto;
+
+
+    }
+    
+
+</style>
+<body>
+    <div id="camera" >  </div>
+    <div class="wrapper">
+    <button onclick="take_snapshot()" class="button">take snapshot</button>
+    </div>
+    
+    <div id='results'></div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.26/webcam.min.js"></script>
+<script>
+    //load our webcam
+    Webcam.set({
+        width: 640,
+        height: 480,
+        image_format:'jpeg',
+        jpeg_quality:100
+    })
+    Webcam.attach("#camera")
+    function take_snapshot(){
+        Webcam.snap(function(data_uri){
+            console.log('data uri ', data_uri)
+            var request = new XMLHttpRequest()
+            var path = "uploadBase64"
+            request.open("POST", path, true)
+            request.setRequestHeader("Content-Type", "application/json");
+            var base64Json = {
+                base64: data_uri.replace('data:image/jpeg;base64,', '')
+            }
+
+            request.onreadystatechange = function()
+            {
+                if (request.readyState === XMLHttpRequest.DONE){
+                    if(request.status == 200 && request.responseText)
+                    {
+                    
+                        console.log(request.status)
+                        console.log(request.responseText)
+                        alert('The person is : ' + request.responseText)
+                    }
+                }
+            }
+            request.send(JSON.stringify(base64Json))
+            document.getElementById('results').innerHTML = 
+            '<img src="'+data_uri+'">'
+        })
+    }
+
+</script>
+</html>
